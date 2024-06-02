@@ -264,8 +264,6 @@ def evaluate_sporadic(
             no_state_sampling=no_state_sampling,
             use_smooth=use_smooth,
         )
-        forecast = predict_result["forecast"]
-
         reconstruction = predict_result["reconstruction"]
         # Compute MSE using samples
 
@@ -276,7 +274,7 @@ def evaluate_sporadic(
         forecast_sq_errs.append(forecast_sq_err)
         # Compute MSE using mean forecast
 
-        mean_forecast = forecast.mean(0)
+        mean_forecast = reconstruction.mean(0)
         batch_mse_mean_forecast = torch.einsum(
             "btf, btf -> b", (past_target - mean_forecast) ** 2, future_mask
         ) / (torch.sum(future_mask, dim=(-1, -2)))
