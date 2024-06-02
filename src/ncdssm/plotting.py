@@ -27,6 +27,8 @@ color_names = [
 xkcd_colors = colors = sns.xkcd_palette(color_names)
 # colors = sns.color_palette("muted")
 
+colors = colors * 100
+
 
 def plot_on_axis(
     ax,
