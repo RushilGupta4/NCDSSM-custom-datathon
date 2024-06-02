@@ -1,0 +1,11 @@
+__pycache__
+.vscode
+.ipynb_checkpoints
+*.npz
+*.npy
+results/
+*.pdf
+data/climate/
+data/mocap/
+/plots/
+*.egg-info
