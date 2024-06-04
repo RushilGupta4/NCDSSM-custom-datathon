@@ -122,7 +122,7 @@ def show_time_series_forecast(
     prediction_intervals=[90.0],
     fig_title=None,
     file_path=None,
-    max_feats=6,
+    max_feats=16,
     single_plot=False,
     yticks_off=True,
     ylim=None,
