@@ -250,10 +250,8 @@ def evaluate_sporadic(
         past_target = test_batch["past_target"].to(device)
         B, T, F = past_target.shape
         mask = test_batch["past_mask"].to(device)
-        future_target = test_batch["future_target"].to(device)
         past_times = test_batch["past_times"].to(device)
         future_times = test_batch["future_times"].to(device)
-        future_mask = test_batch["future_mask"].to(device)
 
         predict_result = model.forecast(
             past_target,
@@ -269,20 +267,20 @@ def evaluate_sporadic(
 
         forecast_sq_err = (past_target[None] - reconstruction) ** 2
         forecast_sq_err = torch.einsum(
-            "sbtf, btf -> sb", forecast_sq_err, future_mask
-        ) / (torch.sum(future_mask, dim=(-1, -2)))
+            "sbtf, btf -> sb", forecast_sq_err, mask
+        ) / (torch.sum(mask, dim=(-1, -2)))
         forecast_sq_errs.append(forecast_sq_err)
         # Compute MSE using mean forecast
 
         mean_forecast = reconstruction.mean(0)
         batch_mse_mean_forecast = torch.einsum(
-            "btf, btf -> b", (past_target - mean_forecast) ** 2, future_mask
-        ) / (torch.sum(future_mask, dim=(-1, -2)))
+            "btf, btf -> b", (past_target - mean_forecast) ** 2, mask
+        ) / (torch.sum(mask, dim=(-1, -2)))
         mses_mean_forecast.append(batch_mse_mean_forecast)
         sq_err_sum += torch.einsum(
-            "btf, btf -> ", (past_target - mean_forecast) ** 2, future_mask
+            "btf, btf -> ", (past_target - mean_forecast) ** 2, mask
         )
-        mask_sum += torch.sum(future_mask)
+        mask_sum += torch.sum(mask)
 
     forecast_sq_errs = torch.cat(forecast_sq_errs, 1)
     forecast_msq_errs = torch.mean(forecast_sq_errs, 1).detach().cpu().numpy()
