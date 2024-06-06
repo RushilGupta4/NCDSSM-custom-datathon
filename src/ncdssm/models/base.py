@@ -279,20 +279,17 @@ class Base(ABC):
             z_reconstruction.append(z_t)
             y_reconstruction.append(y_t)
 
-        try:
-            z_reconstruction: Tensor = torch.stack(z_reconstruction)
-            z_reconstruction = z_reconstruction.view(
-                past_times.shape[0], num_samples, B, self.z_dim
-            )
-            z_reconstruction = z_reconstruction.permute(1, 2, 0, 3)
-        except:
-            pass
+        z_reconstruction: Tensor = torch.stack(z_reconstruction)
+        z_reconstruction = z_reconstruction.view(
+            past_times.shape[0], num_samples, B, self.z_dim
+        )
+        z_reconstruction = z_reconstruction.permute(1, 2, 0, 3)
 
-        y_reconstruction = y_reconstruction.permute(1, 2, 0, 3)
         y_reconstruction: Tensor = torch.stack(y_reconstruction)
         y_reconstruction = y_reconstruction.view(
             past_times.shape[0], num_samples, B, self.y_dim
         )
+        y_reconstruction = y_reconstruction.permute(1, 2, 0, 3)
 
         (mu, LSigma) = filter_result["last_filtered_dist"]
         future_times = torch.cat([past_times[-1:], future_times], 0)
@@ -318,16 +315,21 @@ class Base(ABC):
             mu_t = mu_t2
             LSigma_t = LSigma_t2
 
-        z_forecast = torch.stack(z_forecast)
-        y_forecast = torch.stack(y_forecast)
-        z_forecast = z_forecast.view(
-            future_times.shape[0] - 1, num_samples, B, self.z_dim
-        )
-        y_forecast = y_forecast.view(
-            future_times.shape[0] - 1, num_samples, B, self.y_dim
-        )
-        z_forecast = z_forecast.permute(1, 2, 0, 3)
-        y_forecast = y_forecast.permute(1, 2, 0, 3)
+        try:
+            z_forecast = torch.stack(z_forecast)
+            y_forecast = torch.stack(y_forecast)
+            z_forecast = z_forecast.view(
+                future_times.shape[0] - 1, num_samples, B, self.z_dim
+            )
+            y_forecast = y_forecast.view(
+                future_times.shape[0] - 1, num_samples, B, self.y_dim
+            )
+            z_forecast = z_forecast.permute(1, 2, 0, 3)
+            y_forecast = y_forecast.permute(1, 2, 0, 3)
+        except:
+            z_forecast = None
+            y_forecast = None
+
         return dict(
             reconstruction=y_reconstruction,
             forecast=y_forecast,
@@ -773,14 +775,16 @@ class BaseLL(nn.Module, Base):
                 future_times.shape[0] - 1, num_samples, B, self.K
             )
             alpha_forecast = alpha_forecast.permute(1, 2, 0, 3)
-        except:
-            pass
 
-        y_forecast = torch.stack(y_forecast)
-        y_forecast = y_forecast.view(
-            future_times.shape[0] - 1, num_samples, B, self.y_dim
-        )
-        y_forecast = y_forecast.permute(1, 2, 0, 3)
+            y_forecast = torch.stack(y_forecast)
+            y_forecast = y_forecast.view(
+                future_times.shape[0] - 1, num_samples, B, self.y_dim
+            )
+            y_forecast = y_forecast.permute(1, 2, 0, 3)
+        except:
+            z_forecast = None
+            alpha_forecast = None
+            y_forecast = None
 
         return dict(
             reconstruction=y_reconstruction,

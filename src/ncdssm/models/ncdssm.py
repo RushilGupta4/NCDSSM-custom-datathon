@@ -194,11 +194,17 @@ class NCDSSM(nn.Module):
         y_reconstruction = y_reconstruction.view(
             num_samples, B, aux_reconstruction.shape[-2], self.y_dim
         )
-        forecast_emit_dist = self.y_emission_net(
-            merge_leading_dims(aux_forecast, ndims=2)
-        )
-        y_forecast = forecast_emit_dist.sample()
-        y_forecast = y_forecast.view(num_samples, B, aux_forecast.shape[-2], self.y_dim)
+
+        try:
+            forecast_emit_dist = self.y_emission_net(
+                merge_leading_dims(aux_forecast, ndims=2)
+            )
+            y_forecast = forecast_emit_dist.sample()
+            y_forecast = y_forecast.view(
+                num_samples, B, aux_forecast.shape[-2], self.y_dim
+            )
+        except:
+            y_forecast = None
 
         return dict(
             reconstruction=y_reconstruction,
@@ -395,11 +401,17 @@ class NCDSSMLL(NCDSSM):
         y_reconstruction = y_reconstruction.view(
             num_samples, B, aux_reconstruction.shape[-2], self.y_dim
         )
-        forecast_emit_dist = self.y_emission_net(
-            merge_leading_dims(aux_forecast, ndims=2)
-        )
-        y_forecast = forecast_emit_dist.sample()
-        y_forecast = y_forecast.view(num_samples, B, aux_forecast.shape[-2], self.y_dim)
+
+        try:
+            forecast_emit_dist = self.y_emission_net(
+                merge_leading_dims(aux_forecast, ndims=2)
+            )
+            y_forecast = forecast_emit_dist.sample()
+            y_forecast = y_forecast.view(
+                num_samples, B, aux_forecast.shape[-2], self.y_dim
+            )
+        except:
+            y_forecast = None
 
         return dict(
             reconstruction=y_reconstruction,
